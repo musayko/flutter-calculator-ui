@@ -26,22 +26,35 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text('Calculator'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.compare_arrows),
+            tooltip: 'Km to Mile Converter',
+            onPressed: () {
+              Navigator.pushNamed(context, '/converter');
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
-            flex: 2, // Gives more space for display
+            flex: 2, 
             child: Container(
               alignment: Alignment.bottomRight,
               padding: const EdgeInsets.all(20),
               child: Text(
-                _displayValue, // Dynamic display value
+                _displayValue, 
                 style: const TextStyle(color: Colors.white, fontSize: 50),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
           Expanded(
-            flex: 3, // Less space for buttons
+            flex: 3, 
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
