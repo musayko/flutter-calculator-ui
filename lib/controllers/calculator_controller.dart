@@ -1,3 +1,4 @@
+// lib/controllers/calculator_controller.dart
 import '../models/calculator_model.dart';
 import '../models/history_model.dart';
 import '../services/database_helper.dart';
@@ -6,13 +7,14 @@ import 'package:intl/intl.dart';
 class CalculatorController {
   final CalculatorModel model = CalculatorModel();
   final void Function(String) updateDisplay;
-  final DatabaseHelper _dbHelper = DatabaseHelper(); // Instantiate DatabaseHelper
+  final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  CalculatorController(this.updateDisplay);
+  CalculatorController(this.updateDisplay) {
+     // Initialize display on creation
+     updateDisplay(model.displayValue);
+  }
 
-  Future<void> handleButtonPress(String buttonText) async { // Make async
-    bool shouldUpdateDisplay = true; // Flag to control display update
-
+  Future<void> handleButtonPress(String buttonText) async {
     switch (buttonText) {
       case 'C':
         model.clear();
@@ -22,34 +24,28 @@ class CalculatorController {
         break;
       case '+':
       case '-':
-      case '×':
-      case '÷':
+      case '×': // Use the display symbol
+      case '÷': // Use the display symbol
       case '%':
-        model.setOperation(buttonText);
+        model.appendOperator(buttonText);
         break;
       case '=':
-        model.calculate(); // Calculate the result
-        String? calculation = model.lastCalculation; // Get the formatted calculation string
+        model.evaluateExpression();
+        String? calculation = model.lastCalculation; // Get from the new model structure
         if (calculation != null && model.displayValue != "Error") {
-           // Save to database if calculation is valid
-           String timestamp = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-           HistoryEntry entry = HistoryEntry(calculation: calculation, timestamp: timestamp);
-           await _dbHelper.insertHistory(entry); // Save asynchronously
-           // Optionally clear last calculation from model after saving
-           // model.clearLastCalculation(); // You'd need to add this method to the model
+          String timestamp = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+          HistoryEntry entry = HistoryEntry(calculation: calculation, timestamp: timestamp);
+          await _dbHelper.insertHistory(entry);
         }
         break;
       case '.':
         model.appendDecimal();
         break;
-      default:
-        // Handle number buttons
+      default: // Number buttons
         model.appendNumber(buttonText);
     }
 
-    // Update UI with the current display value if needed
-    if (shouldUpdateDisplay) {
-       updateDisplay(model.displayValue);
-    }
+    // Update UI with the current display value from the model
+    updateDisplay(model.displayValue);
   }
 }

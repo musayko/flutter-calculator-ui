@@ -1,7 +1,7 @@
+// lib/views/calculator_screen.dart
 import 'package:flutter/material.dart';
 import '../controllers/calculator_controller.dart';
 import 'widgets/calculator_buttons.dart';
-
 
 class CalculatorScreen extends StatefulWidget {
   @override
@@ -9,19 +9,17 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
-  String _displayValue = "0";
+  String _displayValue = "0"; // This will hold the expression or result
   late CalculatorController _controller;
 
   @override
   void initState() {
     super.initState();
-    // Initialize controller with callback to update display
     _controller = CalculatorController((value) {
-      // Ensure updates happen on the main thread if controllers run async
-      if (mounted) { // Check if the widget is still in the tree
-         setState(() {
-            _displayValue = value;
-         });
+      if (mounted) {
+        setState(() {
+          _displayValue = value; // Update display from controller
+        });
       }
     });
   }
@@ -31,18 +29,17 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        // ... (Keep your existing AppBar with title and actions)
         backgroundColor: Colors.black,
         title: const Text('Calculator'),
         actions: [
-           // History Button
-           IconButton(
+          IconButton(
             icon: const Icon(Icons.history),
             tooltip: 'Calculation History',
             onPressed: () {
-              Navigator.pushNamed(context, '/history'); // Navigate using named route
+              Navigator.pushNamed(context, '/history');
             },
           ),
-          // Converter Button (Keep if needed)
           IconButton(
             icon: const Icon(Icons.compare_arrows),
             tooltip: 'Km to Mile Converter',
@@ -58,17 +55,17 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             flex: 2,
             child: Container(
               alignment: Alignment.bottomRight,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Adjusted padding
-              child: SingleChildScrollView( // Allow scrolling for long numbers
-                 scrollDirection: Axis.horizontal,
-                 reverse: true, // Show end of number first
-                 child: Text(
-                    _displayValue,
-                    style: const TextStyle(color: Colors.white, fontSize: 60), // Increased font size
-                    textAlign: TextAlign.right,
-                     maxLines: 1, // Ensure it stays on one line
-                  ),
-                )
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: SingleChildScrollView( // Important for long expressions
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                child: Text(
+                  _displayValue, // Display the expression or result
+                  style: const TextStyle(color: Colors.white, fontSize: 50), // Adjust font size if needed
+                  textAlign: TextAlign.right,
+                  maxLines: 1,
+                ),
+              ),
             ),
           ),
           Expanded(
@@ -82,9 +79,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   topRight: Radius.circular(30),
                 ),
               ),
-              // Pass the async controller method
               child: CalculatorButtons(onButtonPressed: (buttonText) {
-                 _controller.handleButtonPress(buttonText); // Call the async handler
+                 _controller.handleButtonPress(buttonText);
               }),
             ),
           )
