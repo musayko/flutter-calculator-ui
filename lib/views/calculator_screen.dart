@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/calculator_controller.dart';
 import 'widgets/calculator_buttons.dart';
 
+
 class CalculatorScreen extends StatefulWidget {
   @override
   _CalculatorScreenState createState() => _CalculatorScreenState();
@@ -16,9 +17,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     super.initState();
     // Initialize controller with callback to update display
     _controller = CalculatorController((value) {
-      setState(() {
-        _displayValue = value;
-      });
+      // Ensure updates happen on the main thread if controllers run async
+      if (mounted) { // Check if the widget is still in the tree
+         setState(() {
+            _displayValue = value;
+         });
+      }
     });
   }
 
@@ -30,6 +34,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         backgroundColor: Colors.black,
         title: const Text('Calculator'),
         actions: [
+           // History Button
+           IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Calculation History',
+            onPressed: () {
+              Navigator.pushNamed(context, '/history'); // Navigate using named route
+            },
+          ),
+          // Converter Button (Keep if needed)
           IconButton(
             icon: const Icon(Icons.compare_arrows),
             tooltip: 'Km to Mile Converter',
@@ -42,19 +55,24 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       body: Column(
         children: [
           Expanded(
-            flex: 2, 
+            flex: 2,
             child: Container(
               alignment: Alignment.bottomRight,
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                _displayValue, 
-                style: const TextStyle(color: Colors.white, fontSize: 50),
-                overflow: TextOverflow.ellipsis,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Adjusted padding
+              child: SingleChildScrollView( // Allow scrolling for long numbers
+                 scrollDirection: Axis.horizontal,
+                 reverse: true, // Show end of number first
+                 child: Text(
+                    _displayValue,
+                    style: const TextStyle(color: Colors.white, fontSize: 60), // Increased font size
+                    textAlign: TextAlign.right,
+                     maxLines: 1, // Ensure it stays on one line
+                  ),
+                )
             ),
           ),
           Expanded(
-            flex: 3, 
+            flex: 3,
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
@@ -64,7 +82,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   topRight: Radius.circular(30),
                 ),
               ),
-              child: CalculatorButtons(onButtonPressed: _controller.handleButtonPress),
+              // Pass the async controller method
+              child: CalculatorButtons(onButtonPressed: (buttonText) {
+                 _controller.handleButtonPress(buttonText); // Call the async handler
+              }),
             ),
           )
         ],
